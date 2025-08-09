@@ -1,0 +1,69 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UPI Payment Link Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 2rem auto; }
+    label { display: block; margin-top: 1rem; }
+    input, button { padding: 0.5rem; font-size: 1rem; width: 100%; margin-top: 0.5rem; }
+    #qr { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>UPI Payment Link Generator</h2>
+
+  <label>Your UPI ID (Payee):</label>
+  <input type="text" id="upiId" placeholder="merchant@bank" value="merchant@bank" />
+
+  <label>Customer Name:</label>
+  <input type="text" id="customerName" placeholder="John Doe" />
+
+  <label>Amount (INR):</label>
+  <input type="number" id="amount" placeholder="100.00" min="1" step="0.01" />
+
+  <button onclick="generateUPILink()">Generate Payment Link</button>
+
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <div id="qr"></div>
+
+  <!-- QR Code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+  <script>
+    function generateUPILink() {
+      const upiId = document.getElementById('upiId').value.trim();
+      const customerName = encodeURIComponent(document.getElementById('customerName').value.trim());
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (!upiId || !amount || amount <= 0) {
+        alert('Please enter valid UPI ID and amount.');
+        return;
+      }
+
+      const payeeName = "Merchant"; // You can customize or add an input for this
+      const txnNote = customerName ? `Payment for ${customerName}` : 'Payment';
+
+      // Construct UPI link
+      const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount.toFixed(2)}&cu=INR&tn=${txnNote}`;
+
+      // Show link
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p><strong>Payment Link:</strong></p>
+        <a href="${upiLink}" target="_blank">${upiLink}</a>
+      `;
+
+      // Generate QR code
+      const qrDiv = document.getElementById('qr');
+      qrDiv.innerHTML = '';
+      QRCode.toCanvas(qrDiv, upiLink, function (error) {
+        if (error) console.error(error);
+      });
+    }
+  </script>
+
+</body>
+</html>
